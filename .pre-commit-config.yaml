@@ -1,0 +1,17 @@
+repos:
+  - repo: https://github.com/pycqa/flake8
+    rev: '7.1.1'
+    hooks:
+    - id: flake8
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: '24.8.0'
+    hooks:
+      # 换成black-jupyter可以对jupyter notebook进行格式化
+      - id: black
+  - repo: https://github.com/pycqa/isort
+    rev: '5.13.2'
+    hooks:
+      - id: isort
+        name: isort (python)
+default_language_version:
+  python: python3.9
