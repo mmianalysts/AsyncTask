@@ -1,50 +1,50 @@
-# 模版仓库
+# AsyncTask
 
-## 目录结构
+异步任务Web框架
 
-``` shell
-├──.github
-│  └── workflow             # github action配置文件
-├── tests                   # 测试文件夹
-│  └── test_example.py      # 测试文件
-├── .flake8                 # flake8配置文件
-├── .gitignore              # gitignore
-├── .pre-commit-config.yaml # pre-commit配置文件
-├── .python-version         # python版本, action用，写具体的python版本或范围(>=3.6)
-├── pyproject.toml          # 项目配置文件
-├── README.md               # 说明文档
-├── requirements.txt        # 如果是python包，依赖填到pyproject.toml中, 如果是其他项目，依赖填到这里
-└── setup.py                # python包需要此文件作为入口，具体配置在pyproject.toml中
+## 使用样例
+
+```python
+>>> class Api(AsyncTask):
+>>>    def main(self, args1, param1 = param1, logger=None):
+>>>       logger.info("start")
+>>>       return "ok"
+>>> api = Api(collection, logger_dir, max_worker=4)
+>>> app = api.app()
+>>> app.run()
 ```
 
-## 规范工具
+### 必须定义的方法
 
-### pre-commit
+- main(logger, *args, **kwargs) -> Any: 算法主函数，返回值会更新到mongo表中
 
-> 安装： `pip install pre-commit && pre-commit install`
+> logger会通过`main(logger=logger)`的方式传入，用于记录日志
+> 或者通过`self.get_logger(task_id)`获取logger对象
+> 或者通过`logging.getLogger(task_id)`获取logger对象(logger的配置可以看做main启动前完成的)
 
-安装后会在`.git/hooks`目录下生成`pre-commit`文件
+### 可选定义方法
 
-每次使用`git commit`时会自动运行pre-commit配置的规范检查工具，包含以下工具（可以自己配置其他检查）：
+- `get_task_id(*args, **kwargs) -> str`: 生成task_id的方法, 默认使用uuid4().hex
+- `retrieve(task_id: str) -> Optional[dict]`: 获取任务状态的方法, 默认根据task_id从mongo表中查询status, result, error字段
+- `callback(_f: Future, task_id: str)`: 异步任务完成后的回调函数， 默认是将main函数的返回结果更新到mongo表的result字段中
 
-- `black`: 代码格式化工具，会自动格式化代码，在`pyproject.toml`中[配置](https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html)
-- `isort`: 代码导入排序工具，会自动排序导入，在`pyproject.toml`中[配置](https://pycqa.github.io/isort/docs/configuration/options.html)
-- `flake8`: 代码静态检查工具，会检查代码风格，可以在`.flake8`中[配置](https://flake8.pycqa.org/en/latest/user/configuration.html),
+### Args
 
-  > flake8常用[错误码](https://pycodestyle.pycqa.org/en/latest/intro.html#error-codes)
-  > - E501: 行长度超过max-line-length
-  > - E2xx: 多余空格
-  > - E3xx: 多余空行
+- `collection (pymongo.Collection)`: 用于保存结果的mongo表对象
+- `logger_dir (str)`: 日志文件保存目录
+- `max_worker (int)`: 使用默认线程池的最大线程数
+- `executor (concurrent.futures.Executor)`: 自定义执行任务的线程池或进程池
+- `task_timeout (int, timedelta)`: 任务超时时间, 默认4小时, 单位秒
+- `rerun_time_limit (None, int, timedelta)`: 当前时间减更新时间大于该时间时任务会被重新提交，默认无过期时间，单位秒
 
-### github action
+### Methods
 
-配置文件：`.github/check.yml`
+- `get_task_id`: 用户定义的生成task_id的方法, 输入参数和main方法一致
+- `get_logger`: 根据task_id获取logger对象
+- `main`: 用户定义的主函数，返回值需要能够更新到mongo表中
+- `run`: 入口函数，负责检查task_id，异步执行main, 返回task_id
+- `app`: 获取flask app对象，用于启动web服务
 
-- `black`: 检查代码格式
-- `flake8`: 检查代码风格
-- `unittest`: 运行测试用例
+### 环境变量
 
-## 其他资源
-
-- gitmoji: `https://gitmoji.js.org/`
-- commit规范：`https://www.conventionalcommits.org/zh-hans/v1.0.0/`
+- `DISABLE_STREAM_HANDLER`: 禁用控制台日志输出

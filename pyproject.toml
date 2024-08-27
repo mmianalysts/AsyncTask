@@ -3,19 +3,23 @@ build-backend = 'setuptools.build_meta'
 requires = ['setuptools']
 
 [project]
-name = ''
+name = 'async_task'
 version = '0.0.1'
 readme = 'README.md'
 requires-python = '>=3.9'
-# 作为包安装时的依赖
-dependencies = []
+dependencies = [
+    'flask',
+    'pymongo'
+]
 
 [[project.authors]]
-name = 'ds'
-email = 'ds@moojing.com'
+name = 'Zhangzelong'
+email = 'zelong.zhang@moojing.com'
 
 [project.optional-dependencies]
-dev = []
+dev = [
+    'requests'
+]
 
 [tool.setuptools]
 packages = []
