@@ -1,6 +1,6 @@
 [build-system]
 build-backend = 'setuptools.build_meta'
-requires = ['setuptools']
+requires = ['setuptools', 'build']
 
 [project]
 name = 'async_task'
@@ -20,9 +20,6 @@ email = 'zelong.zhang@moojing.com'
 dev = [
     'requests'
 ]
-
-[tool.setuptools]
-packages = []
 
 [tool.black]
 line-length = 100

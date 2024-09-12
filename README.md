@@ -2,6 +2,20 @@
 
 异步任务Web框架
 
+## 安装
+
+- 从git安装,可以根据tag安装不同版本：
+
+```bash
+pip install git+https://github.com/Zhang-Zelong/AsyncTask.git[@tag]
+```
+
+- 复制代码后本地安装
+
+``` bash
+pip install .
+```
+
 ## 使用样例
 
 ```python
