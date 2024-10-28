@@ -7,7 +7,7 @@
 - 从git安装,可以根据tag安装不同版本：
 
 ```bash
-pip install git+https://github.com/Zhang-Zelong/AsyncTask.git[@tag]
+pip install git+https://github.com/mmianalysts/AsyncTask.git[@tag]
 ```
 
 - 复制代码后本地安装
