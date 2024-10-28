@@ -24,7 +24,7 @@ pip install .
 >>>       logger.info("start")
 >>>       return "ok"
 >>> api = Api(collection, logger_dir, max_worker=4)
->>> app = api.app()
+>>> app = api.app("/api")
 >>> app.run()
 ```
 
@@ -53,11 +53,34 @@ pip install .
 
 ### Methods
 
-- `get_task_id`: 用户定义的生成task_id的方法, 输入参数和main方法一致
-- `get_logger`: 根据task_id获取logger对象
-- `main`: 用户定义的主函数，返回值需要能够更新到mongo表中
-- `run`: 入口函数，负责检查task_id，异步执行main, 返回task_id
-- `app`: 获取flask app对象，用于启动web服务
+- `get_task_id(*args, **kwargs)`: 用户定义的生成task_id的方法, 输入参数和main方法一致
+- `get_logger(task_id)`: 根据task_id获取logger对象
+- `main(logger, *args, **kwargs)`: 用户定义的主函数，返回值会在callback函数中更新到mongo表中
+- `run(task_id="", *args, **kwargs)`: 入口函数，负责检查task_id，异步执行main, 返回task_id
+- `app(endpoint)`: 获取flask app对象，用于启动web服务
+
+### 自动生成API服务
+
+- `api.app(endpoint)`: 会返回一个flask app对象，挂载在`/{endpoint}`路径下，默认支持`GET`和`POST`请求
+
+```api
+GET /{endpoint}?task_id=xxx
+response: {
+    "status": "ok",
+    "data": {"task_id": task_id},
+    "error_data": [],
+    "error_msg": "",
+}
+
+POST /{endpoint}
+body: {"data": {...}}  # task parameters
+response: {
+    "status": "ok",
+    "data": {...},  # task detail
+    "error_data": [],
+    "error_msg": "",
+}
+```
 
 ### 环境变量
 
