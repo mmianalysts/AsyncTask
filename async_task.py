@@ -51,7 +51,7 @@ class ExecutorMonitor:
         self.runnig = False
 
 
-class TaskStatus(Enum):
+class TaskStatus(str, Enum):
     """任务状态"""
 
     RUNNING = "running"
