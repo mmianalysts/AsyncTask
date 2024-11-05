@@ -57,6 +57,7 @@ class TaskStatus(str, Enum):
     RUNNING = "running"
     SUCCESS = "success"
     FAILED = "failed"
+    PENDING = "pending"
 
 
 class AsyncTask(abc.ABC):
@@ -198,7 +199,7 @@ class AsyncTask(abc.ABC):
                 # 任务不存在
                 not task
                 # 任务失败
-                or TaskStatus(task["status"]) == TaskStatus.FAILED
+                or TaskStatus(task["status"]) in (TaskStatus.FAILED, TaskStatus.PENDING)
                 # 任务超时
                 or (
                     TaskStatus(task["status"]) == TaskStatus.RUNNING
