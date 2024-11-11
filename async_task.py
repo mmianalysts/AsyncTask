@@ -11,7 +11,7 @@ from functools import cache, cached_property
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
 from pathlib import Path
 from threading import Lock, Thread
-from typing import Any, Optional, Union
+from typing import Any, Optional, TypeVar, Union
 from uuid import uuid4
 from warnings import warn
 
@@ -19,6 +19,7 @@ from flask import Flask, request
 from pymongo.collection import Collection
 
 _lock = Lock()
+T = TypeVar("T")
 
 
 class ExecutorMonitor:
@@ -223,13 +224,14 @@ class AsyncTask(abc.ABC):
             {"task_id": task_id}, {"status": 1, "result": 1, "error": 1, "_id": 0}
         )
 
-    def callback(self, _f: Future, task_id: str):
+    def callback(self, _f: Future[T], task_id: str) -> Optional[T]:
         """异步任务完成后的回调函数，默认是将main函数的返回结果更新到mongo表中"""
         logger = self.get_logger(task_id)
         try:
             result = _f.result()
             self.update_task(task_id, data={"status": TaskStatus.SUCCESS.value, "result": result})
             logger.info("任务完成，状态已更新")
+            return result
         except Exception:
             logger.exception("任务失败")
             self.update_task(
